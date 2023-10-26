@@ -9,6 +9,7 @@ async def echo(websocket, path):
     try:
         async for message in websocket:
             print(f"Received message: {message}")
+            broadcast(message)
             await websocket.send(f"Echo: {message}")
     except ConnectionClosedError:
         print("Connection closed unexpectedly")
