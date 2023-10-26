@@ -4,6 +4,15 @@ from websockets.exceptions import ConnectionClosedError
 
 connected_clients = set()
 
+async def broadcast(message):
+    if connected_clients:  # Check if there are any clients connected
+        await asyncio.wait([client.send(message) for client in connected_clients])
+
+async def periodic_broadcast():
+    while True:
+        await asyncio.sleep(10)  # Wait for 10 seconds
+        await broadcast("Periodic message from server!")
+
 async def echo(websocket, path):
     connected_clients.add(websocket)
     try:
@@ -16,14 +25,6 @@ async def echo(websocket, path):
     finally:
         connected_clients.remove(websocket)
 
-async def broadcast(message):
-    if connected_clients:  # Check if there are any clients connected
-        await asyncio.wait([client.send(message) for client in connected_clients])
-
-async def periodic_broadcast():
-    while True:
-        await asyncio.sleep(10)  # Wait for 10 seconds
-        await broadcast("Periodic message from server!")
 
 
 start_server = websockets.serve(echo, "0.0.0.0", 5000)
