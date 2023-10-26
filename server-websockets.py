@@ -6,7 +6,7 @@ connected_clients = set()
 
 async def broadcast(message):
     if connected_clients:  # Check if there are any clients connected
-        await asyncio.wait([client.send(message) for client in connected_clients])
+        await asyncio.wait([client.send(message+str(connected_clients)) for client in connected_clients])
 
 async def periodic_broadcast():
     while True:
