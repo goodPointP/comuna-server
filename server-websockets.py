@@ -6,7 +6,7 @@ connected_clients = set()
 
 async def broadcast(message):
     if connected_clients:  # Check if there are any clients connected
-        await asyncio.wait([client.send(message+str(connected_clients)) for client in connected_clients])
+        await asyncio.wait([client.send(message) for client in connected_clients])
 
 async def periodic_broadcast():
     while True:
@@ -18,7 +18,7 @@ async def echo(websocket, path):
     try:
         async for message in websocket:
             print(f"Received message: {message}")
-            broadcast(message)
+            await broadcast(message)
             await websocket.send(f"Echo: {message}")
     except ConnectionClosedError:
         print("Connection closed unexpectedly")
