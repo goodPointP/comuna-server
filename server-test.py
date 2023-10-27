@@ -25,11 +25,16 @@ async def echo(websocket, path):
     connected_clients.add(websocket)
     try:
         async for message in websocket:
-            # print(f"Received message: {message}")
-            message = json.loads(message)
+            try:
+                message = json.loads(message)
+            except json.decoder.JSONDecodeError:
+                await websocket.send(f"Invalid JSON: {message}")
+                continue
+
             await websocket.send(f"Echo: {message}")
             await broadcast(f"Incoming message: {message} from {websocket}")
 
+            # create a new session
             if (message["type"] == "request_create_session"):
                 random_id = random.getrandbits(128)
                 sender_id = message["player_id"]
@@ -38,17 +43,20 @@ async def echo(websocket, path):
                 }
                 await websocket.send(f"Session {random_id} created by player {sender_id}")
 
+            # start an existing session
             elif (message["type"] == "request_start_session"):
                 session_id = message["session_id"]
                 active_sessions[session_id]["state"] = "running"
                 await websocket.send(f"Session {session_id} started")
 
+            # join an existing session
             elif (message["type"] == "request_join_session"):
                 session_id = message["session_id"]
                 active_sessions[session_id]["clients"].append(websocket)
                 await websocket.send(active_sessions[session_id].to_json())
                 await broadcast(f"Session {session_id} joined by player {websocket}")
 
+            # send an action to a session
             elif (message["type"] == "player_action"):
                 sender = message["player_id"]
                 session_id = message["session_id"]
@@ -57,6 +65,7 @@ async def echo(websocket, path):
                     if client != sender:
                         await client.send(json.dumps(active_sessions[session_id]["action_list"]))
 
+            # invalid message type handling
             else:
                 await websocket.send(f"Unknown message type: {message['type']}")
                 connected_clients.remove(websocket)
