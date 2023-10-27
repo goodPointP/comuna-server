@@ -18,7 +18,7 @@ async def periodic_broadcast():
         await asyncio.sleep(10)  # Wait for 10 seconds
         await broadcast("Periodic message from server!")
         await broadcast(f"There are currently {len(connected_clients)} clients connected across {len(active_sessions)} sessions.")
-        await broadcast("Active session info:\n"+json.dumps(active_sessions))
+        await broadcast("Active session info:\n"+str(active_sessions))
 
 
 async def echo(websocket, path):
