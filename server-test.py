@@ -29,7 +29,8 @@ async def echo(websocket, path):
                 message = json.loads(message)
             except json.decoder.JSONDecodeError:
                 await websocket.send("Invalid JSON")
-                continue
+                connected_clients.remove(websocket)
+                return
 
             await websocket.send(f"Echo: {message}")
             await broadcast(f"Incoming message: {message} from {websocket}")
