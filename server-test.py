@@ -74,7 +74,8 @@ async def echo(websocket, path):
     except ConnectionClosedError:
         print("Connection closed unexpectedly")
     finally:
-        connected_clients.remove(websocket)
+        if websocket in connected_clients:
+            connected_clients.remove(websocket)
 
 
 start_server = websockets.serve(echo, "0.0.0.0", 5001)
