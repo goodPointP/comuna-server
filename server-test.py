@@ -30,8 +30,11 @@ async def echo(websocket, path):
 
             if (message["type"] == "request_create_session"):
                 random_id = random.getrandbits(128)
+                sender_id = message["player_id"]
                 active_sessions[random_id] = {
-                    "clients": [websocket], "state": "waiting", "action_list": []}
+                    "clients": [websocket], "state": "waiting", "action_list": [], "host": sender_id
+                }
+                await websocket.send(f"Session {random_id} created by player {sender_id}")
 
             elif (message["type"] == "request_start_session"):
                 session_id = message["session_id"]
@@ -45,7 +48,7 @@ async def echo(websocket, path):
                 await broadcast(f"Session {session_id} joined by player {websocket}")
 
             elif (message["type"] == "player_action"):
-                sender = message["sender"]
+                sender = message["player_id"]
                 session_id = message["session_id"]
                 active_sessions[session_id]["action_list"].append(message)
                 for client in active_sessions[session_id]["clients"]:
