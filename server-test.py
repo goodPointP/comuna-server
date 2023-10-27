@@ -59,6 +59,7 @@ async def echo(websocket, path):
 
             else:
                 await websocket.send(f"Unknown message type: {message['type']}")
+                connected_clients.remove(websocket)
     except ConnectionClosedError:
         print("Connection closed unexpectedly")
     finally:
