@@ -81,6 +81,14 @@ async def echo(websocket, path):
             elif (message["type"] == "request_join_session"):
                 sender_id = message["player_id"]
                 session_id = message["session_id"]
+                # check if session exists
+                if session_id not in active_sessions:
+                    await websocket.send(f"Session {session_id} does not exist")
+                    continue
+                # check if player is already in session
+                if sender_id in active_sessions[session_id]["clients"]:
+                    await websocket.send(f"Player {sender_id} is already in session {session_id}")
+                    continue
                 active_sessions[session_id]["clients"].append(sender_id)
                 json_response = json.dumps(active_sessions[session_id])
                 await websocket.send(json_response)
