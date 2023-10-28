@@ -16,7 +16,7 @@ async def broadcast(message):
 async def periodic_sessions_check():
     # check for sessions that have been abandoned
     for session_id in active_sessions:
-        if len(active_sessions[session_id]["clients"]) == 0:
+        if active_sessions[session_id]["clients"] == []:
             del active_sessions[session_id]
 
 
