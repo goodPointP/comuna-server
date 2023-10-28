@@ -51,8 +51,6 @@ async def send_current_session_state(websocket, session_id):
     package["message_type"] = "session_state"
     # make a JSON from active_sessions[session_id]
     json_response = json.dumps(active_sessions[session_id])
-    print(json_response)
-    await websocket.send("JSON incoming")
     await websocket.send(json_response)
 
 
@@ -124,7 +122,12 @@ async def serve(websocket, path):
                 active_sessions[session_id]["action_list"].append(move_data)
                 for client in active_sessions[session_id]["clients"]:
                     if client["player_id"] != sender_id:
-                        await client_websocket_pairs[client["player_id"]].send(json.dumps(active_sessions[session_id]["action_list"]))
+                        receiver_id = client["player_id"]
+                        package = active_sessions[session_id]["action_list"][-1]
+                        package["message_type"] = "new_player_action"
+                        # make a JSON from active_sessions[session_id]
+                        json_response = json.dumps(active_sessions[session_id])
+                        await client_websocket_pairs[receiver_id].send(json_response)
 
             # invalid message type handling
             else:
