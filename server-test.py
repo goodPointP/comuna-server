@@ -100,7 +100,7 @@ async def serve(websocket, path):
                     package = active_sessions[session_id]["state"]
                     package["message_type"] = "session_start"
                     # make a JSON from active_sessions[session_id]
-                    json_response = json.dumps(active_sessions[session_id])
+                    json_response = json.dumps(package)
                     await client_websocket_pairs[receiver_id].send(json_response)
 
             # join an existing session
