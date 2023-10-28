@@ -29,7 +29,7 @@ async def periodic_broadcast():
         await broadcast("Active session info:\n"+str(active_sessions))
 
 
-async def disconnect_client(websocket):
+async def disconnect_client(websocket, sender_id):
     # remove client from connected_clients
     if websocket in connected_clients:
         connected_clients.remove(websocket)
@@ -37,7 +37,7 @@ async def disconnect_client(websocket):
     # remove client from session
     for session_id in active_sessions:
         if websocket in active_sessions[session_id]["clients"]:
-            active_sessions[session_id]["clients"].remove(websocket)
+            active_sessions[session_id]["clients"].remove(sender_id)
 
 
 async def echo(websocket, path):
@@ -97,12 +97,12 @@ async def echo(websocket, path):
             # invalid message type handling
             else:
                 await websocket.send(f"Unknown message type: {message['type']}")
-                await disconnect_client(websocket)
+                await disconnect_client(websocket, sender_id)
     except ConnectionClosedError:
         print("Connection closed unexpectedly")
-        await disconnect_client(websocket)
+        await disconnect_client(websocket, sender_id)
     finally:
-        await disconnect_client(websocket)
+        await disconnect_client(websocket, sender_id)
 
 
 start_server = websockets.serve(echo, "0.0.0.0", 5001)
