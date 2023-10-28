@@ -15,11 +15,11 @@ async def broadcast(message):
 
 async def periodic_broadcast():
     while True:
-        print(active_sessions)
+        print(json.dumps(active_sessions, sort_keys=True, indent=4))
         await asyncio.sleep(10)  # Wait for 10 seconds
         await broadcast("Periodic message from server!")
         await broadcast(f"There are currently {len(connected_clients)} clients connected across {len(active_sessions)} sessions.")
-        await broadcast("Active session info:\n"+str(active_sessions))
+        await broadcast("Active session info:\n"+str(json.dumps(active_sessions, sort_keys=True, indent=4)))
 
 
 async def disconnect_client(websocket, sender_id):
