@@ -26,7 +26,7 @@ async def disconnect_client(websocket, sender_id):
     # remove client from connected_clients
     if websocket in connected_clients:
         connected_clients.remove(websocket)
-        print(f"Client {sender_id} disconnected")
+        print(f"Client {sender_id} removed from connected_clients")
 
     # List to store session_ids that need to be deleted
     sessions_to_delete = []
