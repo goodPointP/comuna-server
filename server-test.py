@@ -35,7 +35,7 @@ async def disconnect_client(websocket, sender_id):
     for session_id in active_sessions:
         # Use a list comprehension to remove the client with matching sender_id
         active_sessions[session_id]["clients"] = [
-            client for client in active_sessions[session_id]["clients"] if client["player_id"] != int(sender_id)]
+            client for client in active_sessions[session_id]["clients"] if client["player_id"] == int(sender_id)]
 
         if not active_sessions[session_id]["clients"]:
             sessions_to_delete.append(session_id)
