@@ -33,10 +33,16 @@ async def disconnect_client(websocket, sender_id):
     sessions_to_delete = []
 
     for session_id in active_sessions:
+        clients_to_remove = []  # List to store clients that need to be removed
         for client in active_sessions[session_id]["clients"]:
-            if int(sender_id) in active_sessions[session_id]["clients"]["player_id"]:
-                active_sessions[session_id]["clients"].remove(client)
+            if int(sender_id) == client["player_id"]:
+                clients_to_remove.append(client)
                 print(f"Client {sender_id} removed from session {session_id}")
+
+        # Remove the clients outside the inner loop
+        for client in clients_to_remove:
+            active_sessions[session_id]["clients"].remove(client)
+
         if not active_sessions[session_id]["clients"]:
             sessions_to_delete.append(session_id)
 
