@@ -35,14 +35,19 @@ async def echo(websocket, path):
                 continue
 
             await websocket.send(f"Echo: {message}")
-            await broadcast(f"Incoming message: {message} from {websocket}")
+            await broadcast(f"Incoming message: {message} from {sender_id}")
 
             # create a new session
             if (message["type"] == "request_create_session"):
                 random_id = str(random.getrandbits(128))
                 sender_id = message["player_id"]
+                map_layout = message["map_layout"]
                 active_sessions[random_id] = {
-                    "clients": [websocket], "state": "waiting", "action_list": [], "host": sender_id
+                    "clients": [sender_id],
+                    "state": "waiting",
+                    "action_list": [],
+                    "host": sender_id,
+                    "map_layout": map_layout
                 }
                 await websocket.send(f"Session {random_id} created by player {sender_id}")
 
@@ -54,10 +59,12 @@ async def echo(websocket, path):
 
             # join an existing session
             elif (message["type"] == "request_join_session"):
+                sender_id = message["player_id"]
                 session_id = message["session_id"]
-                active_sessions[session_id]["clients"].append(websocket)
-                await websocket.send(active_sessions[session_id].to_json())
-                await broadcast(f"Session {session_id} joined by player {websocket}")
+                active_sessions[session_id]["clients"].append(sender_id)
+                json_response = json.dumps(active_sessions[session_id])
+                await websocket.send(json_response)
+                await broadcast(f"Session {session_id} joined by player {sender_id}")
 
             # send an action to a session
             elif (message["type"] == "player_action"):
