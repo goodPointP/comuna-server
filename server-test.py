@@ -15,6 +15,7 @@ async def broadcast(message):
 
 async def periodic_broadcast():
     while True:
+        print(active_sessions)
         await asyncio.sleep(10)  # Wait for 10 seconds
         await broadcast("Periodic message from server!")
         await broadcast(f"There are currently {len(connected_clients)} clients connected across {len(active_sessions)} sessions.")
