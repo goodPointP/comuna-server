@@ -94,6 +94,14 @@ async def serve(websocket, path):
                 session_id = message["session_id"]
                 active_sessions[session_id]["state"] = "running"
                 await broadcast(f"Session {session_id} started")
+                for client in active_sessions[session_id]["clients"]:
+                    # send session_start message to all clients, including the host
+                    receiver_id = client["player_id"]
+                    package = active_sessions[session_id]["state"]
+                    package["message_type"] = "session_start"
+                    # make a JSON from active_sessions[session_id]
+                    json_response = json.dumps(active_sessions[session_id])
+                    await client_websocket_pairs[receiver_id].send(json_response)
 
             # join an existing session
             elif (message["type"] == "request_join_session"):
