@@ -19,6 +19,11 @@ async def periodic_broadcast():
         await asyncio.sleep(10)  # Wait for 10 seconds
         await broadcast("Periodic message from server!")
         await broadcast(f"There are currently {len(connected_clients)} clients connected across {len(active_sessions)} sessions.")
+        # make a copy of active sessions but without the websockets
+        broadcastable_session_info = active_sessions
+        for session_id in broadcastable_session_info:
+            for client in broadcastable_session_info[session_id]["clients"]:
+                client["websocket"] = "removed"
         await broadcast("Active session info:\n"+str(json.dumps(active_sessions, sort_keys=True, indent=4)))
 
 
