@@ -6,6 +6,7 @@ import json
 
 connected_clients = set()
 active_sessions = {}
+client_websocket_pairs = {}
 
 
 async def broadcast(message):
@@ -19,11 +20,6 @@ async def periodic_broadcast():
         await asyncio.sleep(10)  # Wait for 10 seconds
         await broadcast("Periodic message from server!")
         await broadcast(f"There are currently {len(connected_clients)} clients connected across {len(active_sessions)} sessions.")
-        # make a copy of active sessions but without the websockets
-        broadcastable_session_info = active_sessions
-        for session_id in broadcastable_session_info:
-            for client in broadcastable_session_info[session_id]["clients"]:
-                client["websocket"] = "removed"
         await broadcast("Active session info:\n"+str(json.dumps(active_sessions, sort_keys=True, indent=4)))
 
 
@@ -52,9 +48,6 @@ async def disconnect_client(websocket, sender_id):
 async def send_current_session_state(websocket, session_id):
     # make packet recognizable by client to be a session state packet
     package = active_sessions[session_id]
-    # remove the websockets from the package
-    for client in package["clients"]:
-        client["websocket"] = "removed"
     package["message_type"] = "session_state"
     # make a JSON from active_sessions[session_id]
     json_response = json.dumps(active_sessions[session_id])
@@ -87,7 +80,6 @@ async def serve(websocket, path):
                 active_sessions[session_id] = {
                     "session_id": session_id,
                     "clients": [{"player_id": sender_id,
-                                 "websocket": websocket,
                                  "ready": True}],
                     "state": "waiting",
                     "action_list": [],
@@ -116,7 +108,6 @@ async def serve(websocket, path):
                     await websocket.send(f"Player {sender_id} is already in session {session_id}")
                     continue
                 client_to_add = {"player_id": sender_id,
-                                 "websocket": websocket,
                                  "ready": True}
                 active_sessions[session_id]["clients"].append(client_to_add)
                 await send_current_session_state(websocket, session_id)
