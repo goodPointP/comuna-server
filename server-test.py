@@ -48,6 +48,7 @@ async def send_current_session_state(websocket, session_id):
     # make packet recognizable by client to be a session state packet
     package = active_sessions[session_id]
     package["message_type"] = "session_state"
+    # make a JSON from active_sessions[session_id]
     json_response = json.dumps(active_sessions[session_id])
     print(json_response)
     await websocket.send("JSON incoming")
@@ -76,6 +77,7 @@ async def echo(websocket, path):
                 sender_id = message["player_id"]
                 map_layout = message["map_layout"]
                 active_sessions[session_id] = {
+                    "session_id": session_id,
                     "clients": [sender_id],
                     "state": "waiting",
                     "action_list": [],
