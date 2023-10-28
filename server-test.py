@@ -78,7 +78,9 @@ async def serve(websocket, path):
                 map_layout = message["map_layout"]
                 active_sessions[session_id] = {
                     "session_id": session_id,
-                    "clients": [sender_id],
+                    "clients": [{"player_id": sender_id,
+                                 "websocket": websocket,
+                                 "ready": True}],
                     "state": "waiting",
                     "action_list": [],
                     "host": sender_id,
@@ -105,7 +107,10 @@ async def serve(websocket, path):
                 if sender_id in active_sessions[session_id]["clients"]:
                     await websocket.send(f"Player {sender_id} is already in session {session_id}")
                     continue
-                active_sessions[session_id]["clients"].append(sender_id)
+                client_to_add = {"player_id": sender_id,
+                                 "websocket": websocket,
+                                 "ready": True}
+                active_sessions[session_id]["clients"].append(client_to_add)
                 await send_current_session_state(websocket, session_id)
                 await broadcast(f"Session {session_id} joined by player {sender_id}")
 
@@ -118,8 +123,8 @@ async def serve(websocket, path):
                     "player_id": sender_id, "move_data": move}
                 active_sessions[session_id]["action_list"].append(move_data)
                 for client in active_sessions[session_id]["clients"]:
-                    if client != sender_id:
-                        await client.send(json.dumps(active_sessions[session_id]["action_list"]))
+                    if client["player_id"] != sender_id:
+                        await client["websocket"].send(json.dumps(active_sessions[session_id]["action_list"]))
 
             # invalid message type handling
             else:
