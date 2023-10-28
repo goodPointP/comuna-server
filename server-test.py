@@ -55,7 +55,7 @@ async def send_current_session_state(websocket, session_id):
     await websocket.send(json_response)
 
 
-async def echo(websocket, path):
+async def serve(websocket, path):
     connected_clients.add(websocket)
     try:
         async for message in websocket:
@@ -91,7 +91,7 @@ async def echo(websocket, path):
             elif (message["type"] == "request_start_session"):
                 session_id = message["session_id"]
                 active_sessions[session_id]["state"] = "running"
-                await websocket.send(f"Session {session_id} started")
+                await broadcast(f"Session {session_id} started")
 
             # join an existing session
             elif (message["type"] == "request_join_session"):
@@ -132,7 +132,7 @@ async def echo(websocket, path):
         await disconnect_client(websocket, sender_id)
 
 
-start_server = websockets.serve(echo, "0.0.0.0", 5001)
+start_server = websockets.serve(serve, "0.0.0.0", 5001)
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().create_task(periodic_broadcast())
 asyncio.get_event_loop().run_forever()
