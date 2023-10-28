@@ -32,7 +32,7 @@ async def disconnect_client(websocket, sender_id):
         if sender_id in active_sessions[session_id]["clients"]:
             active_sessions[session_id]["clients"].remove(sender_id)
         if active_sessions[session_id]["clients"] == []:
-            del active_sessions[session_id]
+            del await active_sessions[session_id]
 
 
 async def echo(websocket, path):
