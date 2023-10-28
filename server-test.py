@@ -52,6 +52,9 @@ async def disconnect_client(websocket, sender_id):
 async def send_current_session_state(websocket, session_id):
     # make packet recognizable by client to be a session state packet
     package = active_sessions[session_id]
+    # remove the websockets from the package
+    for client in package["clients"]:
+        client["websocket"] = "removed"
     package["message_type"] = "session_state"
     # make a JSON from active_sessions[session_id]
     json_response = json.dumps(active_sessions[session_id])
