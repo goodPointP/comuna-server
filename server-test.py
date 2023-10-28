@@ -64,8 +64,7 @@ async def serve(websocket, path):
                 message = json.loads(message)
             except json.decoder.JSONDecodeError:
                 await websocket.send("Invalid JSON")
-                # disconnect client
-                connected_clients.remove(websocket)
+                disconnect_client(websocket, sender_id)
                 continue
 
             sender_id = message["player_id"]
