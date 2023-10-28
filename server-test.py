@@ -113,7 +113,8 @@ async def serve(websocket, path):
             elif (message["type"] == "player_action"):
                 # sender_id = message["player_id"]
                 session_id = message["session_id"]
-                active_sessions[session_id]["action_list"].append(message)
+                move_data = message["move_data"]
+                active_sessions[session_id]["action_list"].append(move_data)
                 for client in active_sessions[session_id]["clients"]:
                     if client != sender_id:
                         await client.send(json.dumps(active_sessions[session_id]["action_list"]))
