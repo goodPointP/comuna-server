@@ -38,7 +38,7 @@ async def echo(websocket, path):
 
             # create a new session
             if (message["type"] == "request_create_session"):
-                random_id = random.getrandbits(128)
+                random_id = str(random.getrandbits(128))
                 sender_id = message["player_id"]
                 active_sessions[random_id] = {
                     "clients": [websocket], "state": "waiting", "action_list": [], "host": sender_id
