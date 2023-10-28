@@ -34,6 +34,7 @@ async def echo(websocket, path):
                 connected_clients.remove(websocket)
                 continue
 
+            sender_id = message["player_id"]
             await websocket.send(f"Echo: {message}")
             await broadcast(f"Incoming message: {message} from {sender_id}")
 
@@ -59,7 +60,7 @@ async def echo(websocket, path):
 
             # join an existing session
             elif (message["type"] == "request_join_session"):
-                sender_id = message["player_id"]
+                # sender_id = message["player_id"]
                 session_id = message["session_id"]
                 active_sessions[session_id]["clients"].append(sender_id)
                 json_response = json.dumps(active_sessions[session_id])
@@ -68,11 +69,11 @@ async def echo(websocket, path):
 
             # send an action to a session
             elif (message["type"] == "player_action"):
-                sender = message["player_id"]
+                # sender_id = message["player_id"]
                 session_id = message["session_id"]
                 active_sessions[session_id]["action_list"].append(message)
                 for client in active_sessions[session_id]["clients"]:
-                    if client != sender:
+                    if client != sender_id:
                         await client.send(json.dumps(active_sessions[session_id]["action_list"]))
 
             # invalid message type handling
