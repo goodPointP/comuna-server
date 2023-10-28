@@ -13,7 +13,7 @@ async def broadcast(message):
         await asyncio.gather(*(client.send(message) for client in connected_clients))
 
 
-async def periodic_processes():
+async def periodic_broadcast():
     while True:
         print(active_sessions)
         await asyncio.sleep(10)  # Wait for 10 seconds
@@ -118,5 +118,5 @@ async def echo(websocket, path):
 
 start_server = websockets.serve(echo, "0.0.0.0", 5001)
 asyncio.get_event_loop().run_until_complete(start_server)
-asyncio.get_event_loop().create_task(periodic_processes())
+asyncio.get_event_loop().create_task(periodic_broadcast())
 asyncio.get_event_loop().run_forever()
