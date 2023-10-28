@@ -97,12 +97,12 @@ async def echo(websocket, path):
             # invalid message type handling
             else:
                 await websocket.send(f"Unknown message type: {message['type']}")
-                disconnect_client(websocket)
+                await disconnect_client(websocket)
     except ConnectionClosedError:
         print("Connection closed unexpectedly")
-        disconnect_client(websocket)
+        await disconnect_client(websocket)
     finally:
-        disconnect_client(websocket)
+        await disconnect_client(websocket)
 
 
 start_server = websockets.serve(echo, "0.0.0.0", 5001)
