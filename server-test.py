@@ -50,6 +50,7 @@ async def send_current_session_state(websocket, session_id):
     package["message_type"] = "session_state"
     json_response = json.dumps(active_sessions[session_id])
     print(json_response)
+    await websocket.send("JSON incoming")
     await websocket.send(json_response)
 
 
@@ -66,8 +67,8 @@ async def echo(websocket, path):
                 continue
 
             sender_id = message["player_id"]
-            await websocket.send(f"Echo: {message}")
-            await broadcast(f"Incoming message: {message} from {sender_id}")
+            # await websocket.send(f"Echo: {message}")
+            # await broadcast(f"Incoming message: {message} from {sender_id}")
 
             # create a new session
             if (message["type"] == "request_create_session"):
