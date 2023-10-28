@@ -110,7 +110,11 @@ async def echo(websocket, path):
             else:
                 await websocket.send(f"Unknown message type: {message['type']}")
                 await disconnect_client(websocket, sender_id)
-    except ConnectionClosedError:
+    except ConnectionClosedError as e:
+        if e.code == 1006:
+            print("Connection closed by client")
+        else:
+            print("Connection closed error occurred:\n", e)
         await disconnect_client(websocket, sender_id)
     finally:
         await disconnect_client(websocket, sender_id)
