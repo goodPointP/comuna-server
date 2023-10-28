@@ -13,6 +13,13 @@ async def broadcast(message):
         await asyncio.wait([client.send(message) for client in connected_clients])
 
 
+async def periodic_sessions_check():
+    # check for sessions that have been abandoned
+    for session_id in active_sessions:
+        if len(active_sessions[session_id]["clients"]) == 0:
+            del active_sessions[session_id]
+
+
 async def periodic_broadcast():
     while True:
         print(active_sessions)
@@ -20,6 +27,17 @@ async def periodic_broadcast():
         await broadcast("Periodic message from server!")
         await broadcast(f"There are currently {len(connected_clients)} clients connected across {len(active_sessions)} sessions.")
         await broadcast("Active session info:\n"+str(active_sessions))
+
+
+async def disconnect_client(websocket):
+    # remove client from connected_clients
+    if websocket in connected_clients:
+        connected_clients.remove(websocket)
+
+    # remove client from session
+    for session_id in active_sessions:
+        if websocket in active_sessions[session_id]["clients"]:
+            active_sessions[session_id]["clients"].remove(websocket)
 
 
 async def echo(websocket, path):
@@ -79,15 +97,16 @@ async def echo(websocket, path):
             # invalid message type handling
             else:
                 await websocket.send(f"Unknown message type: {message['type']}")
-                connected_clients.remove(websocket)
+                disconnect_client(websocket)
     except ConnectionClosedError:
         print("Connection closed unexpectedly")
+        disconnect_client(websocket)
     finally:
-        if websocket in connected_clients:
-            connected_clients.remove(websocket)
+        disconnect_client(websocket)
 
 
 start_server = websockets.serve(echo, "0.0.0.0", 5001)
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().create_task(periodic_broadcast())
+asyncio.get_event_loop().create_task(periodic_sessions_check())
 asyncio.get_event_loop().run_forever()
