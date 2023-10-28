@@ -36,7 +36,7 @@ async def disconnect_client(websocket, sender_id):
 
     # remove client from session
     for session_id in active_sessions:
-        if websocket in active_sessions[session_id]["clients"]:
+        if sender_id in active_sessions[session_id]["clients"]:
             active_sessions[session_id]["clients"].remove(sender_id)
 
 
