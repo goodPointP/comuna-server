@@ -26,6 +26,7 @@ async def disconnect_client(websocket, sender_id):
     # remove client from connected_clients
     if websocket in connected_clients:
         connected_clients.remove(websocket)
+        print(f"Client {sender_id} disconnected")
 
     # List to store session_ids that need to be deleted
     sessions_to_delete = []
@@ -33,12 +34,14 @@ async def disconnect_client(websocket, sender_id):
     for session_id in active_sessions:
         if sender_id in active_sessions[session_id]["clients"]:
             active_sessions[session_id]["clients"].remove(sender_id)
+            print(f"Client {sender_id} removed from session {session_id}")
         if not active_sessions[session_id]["clients"]:
             sessions_to_delete.append(session_id)
 
     # Delete the sessions outside the loop
     for session_id in sessions_to_delete:
         del active_sessions[session_id]
+        print(f"Session {session_id} deleted")
 
 
 async def echo(websocket, path):
@@ -108,7 +111,6 @@ async def echo(websocket, path):
                 await websocket.send(f"Unknown message type: {message['type']}")
                 await disconnect_client(websocket, sender_id)
     except ConnectionClosedError:
-        print("Connection closed unexpectedly")
         await disconnect_client(websocket, sender_id)
     finally:
         await disconnect_client(websocket, sender_id)
