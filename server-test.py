@@ -13,7 +13,7 @@ async def broadcast(message):
         await asyncio.wait([client.send(message) for client in connected_clients])
 
 
-async def periodic_sessions_check():
+def periodic_sessions_check():
     # check for sessions that have been abandoned
     for session_id in active_sessions:
         if active_sessions[session_id]["clients"] == []:
@@ -27,7 +27,7 @@ async def periodic_processes():
         await broadcast("Periodic message from server!")
         await broadcast(f"There are currently {len(connected_clients)} clients connected across {len(active_sessions)} sessions.")
         await broadcast("Active session info:\n"+str(active_sessions))
-        await periodic_sessions_check()
+        periodic_sessions_check()
 
 
 async def disconnect_client(websocket, sender_id):
