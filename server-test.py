@@ -27,12 +27,18 @@ async def disconnect_client(websocket, sender_id):
     if websocket in connected_clients:
         connected_clients.remove(websocket)
 
-    # remove client from session
+    # List to store session_ids that need to be deleted
+    sessions_to_delete = []
+
     for session_id in active_sessions:
         if sender_id in active_sessions[session_id]["clients"]:
             active_sessions[session_id]["clients"].remove(sender_id)
-        if active_sessions[session_id]["clients"] == []:
-            del await active_sessions[session_id]
+        if not active_sessions[session_id]["clients"]:
+            sessions_to_delete.append(session_id)
+
+    # Delete the sessions outside the loop
+    for session_id in sessions_to_delete:
+        del active_sessions[session_id]
 
 
 async def echo(websocket, path):
