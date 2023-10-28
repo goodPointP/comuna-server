@@ -20,13 +20,14 @@ async def periodic_sessions_check():
             del active_sessions[session_id]
 
 
-async def periodic_broadcast():
+async def periodic_processes():
     while True:
         print(active_sessions)
         await asyncio.sleep(10)  # Wait for 10 seconds
         await broadcast("Periodic message from server!")
         await broadcast(f"There are currently {len(connected_clients)} clients connected across {len(active_sessions)} sessions.")
         await broadcast("Active session info:\n"+str(active_sessions))
+        await periodic_sessions_check()
 
 
 async def disconnect_client(websocket, sender_id):
@@ -107,6 +108,5 @@ async def echo(websocket, path):
 
 start_server = websockets.serve(echo, "0.0.0.0", 5001)
 asyncio.get_event_loop().run_until_complete(start_server)
-asyncio.get_event_loop().create_task(periodic_broadcast())
-asyncio.get_event_loop().create_task(periodic_sessions_check())
+asyncio.get_event_loop().create_task(periodic_processes())
 asyncio.get_event_loop().run_forever()
