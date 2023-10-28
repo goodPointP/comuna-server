@@ -113,7 +113,9 @@ async def serve(websocket, path):
             elif (message["type"] == "player_action"):
                 # sender_id = message["player_id"]
                 session_id = message["session_id"]
-                move_data = message["move_data"]
+                move = message["move_data"]
+                move_data = {
+                    "player_id": sender_id, "move_data": move}
                 active_sessions[session_id]["action_list"].append(move_data)
                 for client in active_sessions[session_id]["clients"]:
                     if client != sender_id:
