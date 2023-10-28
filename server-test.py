@@ -44,6 +44,15 @@ async def disconnect_client(websocket, sender_id):
         print(f"Session {session_id} deleted")
 
 
+async def send_current_session_state(websocket, session_id):
+    # make packet recognizable by client to be a session state packet
+    package = active_sessions[session_id]
+    package["message_type"] = "session_state"
+    json_response = json.dumps(active_sessions[session_id])
+    print(json_response)
+    await websocket.send(json_response)
+
+
 async def echo(websocket, path):
     connected_clients.add(websocket)
     try:
@@ -72,8 +81,7 @@ async def echo(websocket, path):
                     "host": sender_id,
                     "map_layout": map_layout
                 }
-                json_response = json.dumps(active_sessions[session_id])
-                await websocket.send(json_response)
+                await send_current_session_state(websocket, session_id)
                 await websocket.send(f"Session {session_id} created by player {sender_id}")
 
             # start an existing session
@@ -95,8 +103,7 @@ async def echo(websocket, path):
                     await websocket.send(f"Player {sender_id} is already in session {session_id}")
                     continue
                 active_sessions[session_id]["clients"].append(sender_id)
-                json_response = json.dumps(active_sessions[session_id])
-                await websocket.send(json_response)
+                await send_current_session_state(websocket, session_id)
                 await broadcast(f"Session {session_id} joined by player {sender_id}")
 
             # send an action to a session
