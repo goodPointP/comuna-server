@@ -86,6 +86,7 @@ async def serve(websocket, path):
                     "host": sender_id,
                     "map_layout": map_layout
                 }
+                client_websocket_pairs[sender_id] = websocket
                 await send_current_session_state(websocket, session_id)
                 await websocket.send(f"Session {session_id} created by player {sender_id}")
 
@@ -110,6 +111,7 @@ async def serve(websocket, path):
                 client_to_add = {"player_id": sender_id,
                                  "ready": True}
                 active_sessions[session_id]["clients"].append(client_to_add)
+                client_websocket_pairs[sender_id] = websocket
                 await send_current_session_state(websocket, session_id)
                 await broadcast(f"Session {session_id} joined by player {sender_id}")
 
@@ -123,7 +125,7 @@ async def serve(websocket, path):
                 active_sessions[session_id]["action_list"].append(move_data)
                 for client in active_sessions[session_id]["clients"]:
                     if client["player_id"] != sender_id:
-                        await client["websocket"].send(json.dumps(active_sessions[session_id]["action_list"]))
+                        await client_websocket_pairs[int(client["player_id"])].send(json.dumps(active_sessions[session_id]["action_list"]))
 
             # invalid message type handling
             else:
