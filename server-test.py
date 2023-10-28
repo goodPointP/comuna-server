@@ -10,7 +10,7 @@ active_sessions = {}
 
 async def broadcast(message):
     if connected_clients:  # Check if there are any clients connected
-        await asyncio.wait([client.send(message) for client in connected_clients])
+        await asyncio.gather(*(client.send(message) for client in connected_clients))
 
 
 async def periodic_processes():
@@ -79,7 +79,7 @@ async def echo(websocket, path):
 
             # join an existing session
             elif (message["type"] == "request_join_session"):
-                # sender_id = message["player_id"]
+                sender_id = message["player_id"]
                 session_id = message["session_id"]
                 active_sessions[session_id]["clients"].append(sender_id)
                 json_response = json.dumps(active_sessions[session_id])
