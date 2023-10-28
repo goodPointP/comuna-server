@@ -62,17 +62,19 @@ async def echo(websocket, path):
 
             # create a new session
             if (message["type"] == "request_create_session"):
-                random_id = str(random.getrandbits(128))
+                session_id = str(random.getrandbits(128))
                 sender_id = message["player_id"]
                 map_layout = message["map_layout"]
-                active_sessions[random_id] = {
+                active_sessions[session_id] = {
                     "clients": [sender_id],
                     "state": "waiting",
                     "action_list": [],
                     "host": sender_id,
                     "map_layout": map_layout
                 }
-                await websocket.send(f"Session {random_id} created by player {sender_id}")
+                json_response = json.dumps(active_sessions[session_id])
+                await websocket.send(json_response)
+                await websocket.send(f"Session {session_id} created by player {sender_id}")
 
             # start an existing session
             elif (message["type"] == "request_start_session"):
