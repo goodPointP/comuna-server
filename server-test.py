@@ -125,7 +125,7 @@ async def serve(websocket, path):
                 active_sessions[session_id]["action_list"].append(move_data)
                 for client in active_sessions[session_id]["clients"]:
                     if client["player_id"] != sender_id:
-                        await client_websocket_pairs[int(client["player_id"])].send(json.dumps(active_sessions[session_id]["action_list"]))
+                        await client_websocket_pairs[client["player_id"]].send(json.dumps(active_sessions[session_id]["action_list"]))
 
             # invalid message type handling
             else:
