@@ -66,7 +66,7 @@ async def prepare_message(message):
     return message
 
 
-async def handle_send_message(websocket, message):
+async def handle_send_message_to_player(websocket, message):
     # prepare message to be sent to client
     message = await prepare_message(message)
     # send message to client
@@ -77,7 +77,7 @@ async def handle_send_message_to_session(session_id, message, skip_sender=False,
     # prepare message to be sent to client
     message = await prepare_message(message)
     # send message to client
-    await send_message_to_session(session_id, message)
+    await send_message_to_session(session_id, message, skip_sender, sender_id)
 
 
 async def send_message_to_session(session_id, message, skip_sender=False, sender_id=None):
@@ -85,7 +85,7 @@ async def send_message_to_session(session_id, message, skip_sender=False, sender
     for client in active_sessions[session_id]["clients"]:
         if skip_sender and client["player_id"] == sender_id:
             continue
-        await client_websocket_pairs[client["player_id"]].send(message)
+        await send_message(client_websocket_pairs[client["player_id"]], message)
 
 
 async def handle_event(message, websocket, sender_id):
